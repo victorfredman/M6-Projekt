@@ -1,8 +1,8 @@
 import numpy as np
 
 def hämtaData():
-    tips = np.loadtxt("topp1.txt", delimiter=',')
-    tipsOdds = np.loadtxt("topp1odds.txt", dtype=float, delimiter=',')
+    tips = np.loadtxt("topp2.txt", delimiter=',')
+    tipsOdds = np.loadtxt("topp2odds.txt", dtype=float, delimiter=',')
     tipsProcent = oddsTillProcent(tipsOdds)
     beräknaVärde(tipsProcent, tips)
     print(tipsOdds)
@@ -10,25 +10,48 @@ def hämtaData():
     print(tips[3,2])
 
 def oddsTillProcent(odds):
-    oddsProcent = np.empty((8, 3))
-    for i in range(0,8):
+    oddsProcent = np.empty((odds.shape[0], 3))
+    for i in range(0,odds.shape[0]):
         sportbookMarginal = 0
-        for x in range(0,3):
+        for x in range(0,odds.shape[1]):
             oddsProcent[i, x] = (1/odds[i, x])*100
             sportbookMarginal += oddsProcent[i, x]
         konvertera = sportbookMarginal/100
-        for x in range(0,3):
+        for x in range(0,odds.shape[1]):
             oddsProcent[i, x] = oddsProcent[i, x]/konvertera
     return oddsProcent
-    print(oddsProcent)
 
 def beräknaVärde(odds, folket):
-    värdeBets = np.empty((8, 3))
-    for i in range(0,8):
-        for x in range(0,3):
+    total = 0.7
+    sannorlikhet = 1
+    värdeBets = np.empty((odds.shape[0], odds.shape[1]))
+    högstaVärde = np.empty((odds.shape[0], 3))
+    for i in range(0,odds.shape[0]):
+        for x in range(0,odds.shape[1]):
             värdeBets[i, x] = odds[i, x]/folket[i, x]
+            if x >= 1:
+                if värdeBets[i, x-1] <= värdeBets[i, x]:
+                    högstaVärde[i, 0] = värdeBets[i, x]
+                    högstaVärde[i, 1] = x
+                    högstaVärde[i, 2] = odds[i, x]
+            else:
+                högstaVärde[i, 0] = värdeBets[i, x]
+                högstaVärde[i, 1] = x
+                högstaVärde[i, 2] = odds[i, x]
+    for i in range(0,odds.shape[0]):
+        total = total*högstaVärde[i, 0]
+        sannorlikhet = sannorlikhet*högstaVärde[i, 2]/100
+    print(sannorlikhet*100)
+    print(total)
+    print(högstaVärde)
+
             
     print(värdeBets)
     
         
-hämtaData()     
+hämtaData()
+    print(värdeBets)
+    
+        
+
+    
