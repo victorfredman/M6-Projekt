@@ -1,8 +1,8 @@
 import numpy as np
 import random
-def hämtaData():
-    tips = np.loadtxt("topp2.txt", delimiter=',')
-    tipsOdds = np.loadtxt("topp2odds.txt", dtype=float, delimiter=',')
+def hämtaData(n):
+    tips = np.loadtxt(f"topp{n}.txt", delimiter=',')
+    tipsOdds = np.loadtxt(f"topp{n}odds.txt", dtype=float, delimiter=',')
     tipsProcent = oddsTillProcent(tipsOdds)
     värdeBets = beräknaVärde(tipsProcent, tips)
     play(tipsOdds, tipsProcent, tips, värdeBets)
@@ -63,7 +63,7 @@ def skrivUt(odds, oddsProcent, folkProcent, värdeBets):
         print()
         print()
         
-def skrivResultat(resultat,kupong):
+def skrivResultat(resultat, kupong, tips):
         print("\nDin kupong:")
         for i in range(0, len(kupong)):
             print("Match", i+1, ": ", end='')    
@@ -76,7 +76,9 @@ def skrivResultat(resultat,kupong):
             print(resultat[i])
         print("Resultat:")
         rätt = jämförKupong(kupong, resultat)
-        print(f"Du hade {rätt} rätt!")        
+        medelRätt = andelRätt(resultat, tips)
+        print(f"Du hade {rätt} rätt!") 
+        print(f"Medelvärdet var {medelRätt} rätt för den här kupongen!")       
     
 def slumpa(tipsProcent, tips):
     resultat = []
@@ -95,12 +97,25 @@ def jämförKupong(kupong, resultat):
     for i in range(0, len(kupong)):
         if kupong[i] == resultat[i]:
             rätt += 1
+        
+        
     return rätt
+
+def andelRätt(resultat, tips):
+    medelRätt = 0
+    for i in range(0, len(resultat)):
+        if resultat[i] == "1":
+            medelRätt += tips[i, 0]/100
+        elif resultat[i] == "X":
+            medelRätt += tips[i, 1]/100
+        else:
+            medelRätt += tips[i, 2]/100
+    medelRätt = round(medelRätt, 1)
+    return medelRätt
             
     
     
-def play(tipsOdds, tipsProcent, tips, värdeBets):
-    print("Välkommen till Stryktipset!")
+def play(tipsOdds, tipsProcent, tips, värdeBets):  
     print("1. Se data för alla matcher")
     print("2. Lägga en kupong")
     print("3. Avsluta")
@@ -115,19 +130,43 @@ def play(tipsOdds, tipsProcent, tips, värdeBets):
             print(f"Match {i} odds:")
             while True:
                 svar = input("Vill du sätta 1, X eller 2? ")
-                if svar != "1" and svar != "2" and svar != "x" and svar != "X":
+                if svar == "x":
+                    svar = svar.upper()
+                if svar != "1" and svar != "2" and svar != "X":
                     print("Fel input! Skriv 1, X eller 2 ")
                     continue
                 else:
                     kupong.append(svar)
                     break
         resultat = slumpa(tipsProcent, tips)
-        skrivResultat(resultat, kupong)
+        skrivResultat(resultat, kupong, tips)
+        print("Vill du spela igen? (j/n)")
+        svar = input()
+        if svar == "j" or svar == "J":
+            play(tipsOdds, tipsProcent, tips, värdeBets)
+        else:
+            exit()
 
     elif val == "3":
         exit()
     else:
         print("Ogiltigt alternativ")
     
+def start():
+    print("Välkommen till Stryktipset!")
+    while True:
+        strykTopp = input("vill du spela stryktipset eller topptipset? (s/t)?")
+        strykTopp = strykTopp.lower()
+        if strykTopp != "s" and strykTopp != "t":
+            print("Fel inmatning, skriv t eller s!")
+            continue
+        break
+    while True:
+        nummer = input("vilken gameweek vill du köra på? 1, 2 eller 3?")
+        if nummer != "1" and nummer != "2" and nummer != "3":
+            print("Fel inmatning, skriv 1, 2 eller 3!")
+            continue
+        break
 
-hämtaData()
+    hämtaData(nummer)
+start()
