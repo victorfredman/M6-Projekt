@@ -1,8 +1,12 @@
 import numpy as np
 import random
-def hämtaData(n):
-    tips = np.loadtxt(f"topp{n}.txt", delimiter=',')
-    tipsOdds = np.loadtxt(f"topp{n}odds.txt", dtype=float, delimiter=',')
+def hämtaData(n, st):
+    if st == "s" :
+        st = "stryk"
+    else:
+        st = "topp"
+    tips = np.loadtxt(f"{st}{n}.txt", delimiter=',')
+    tipsOdds = np.loadtxt(f"{st}{n}odds.txt", dtype=float, delimiter=',')
     tipsProcent = oddsTillProcent(tipsOdds)
     värdeBets = beräknaVärde(tipsProcent, tips)
     play(tipsOdds, tipsProcent, tips, värdeBets)
@@ -39,6 +43,7 @@ def beräknaVärde(odds, folket):
     for i in range(0,odds.shape[0]):
         total = total*högstaVärde[i, 0]
         sannorlikhet = sannorlikhet*högstaVärde[i, 2]/100
+    print(högstaVärde)
     return värdeBets
     
 
@@ -126,7 +131,7 @@ def play(tipsOdds, tipsProcent, tips, värdeBets):
         play(tipsOdds, tipsProcent, tips, värdeBets)
     elif val == "2":
         kupong = []
-        for i in range(1, 9):
+        for i in range(1, tips.shape[0] + 1):
             print(f"Match {i} odds:")
             while True:
                 svar = input("Vill du sätta 1, X eller 2? ")
@@ -143,7 +148,7 @@ def play(tipsOdds, tipsProcent, tips, värdeBets):
         print("Vill du spela igen? (j/n)")
         svar = input()
         if svar == "j" or svar == "J":
-            play(tipsOdds, tipsProcent, tips, värdeBets)
+            start()
         else:
             exit()
 
@@ -168,5 +173,5 @@ def start():
             continue
         break
 
-    hämtaData(nummer)
+    hämtaData(nummer, strykTopp)
 start()
