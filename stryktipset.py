@@ -1,14 +1,14 @@
 import numpy as np
 import random
-def hämtaData(n, st):
+def hämtaData(n, st):#Takes the type of coupon and number
     if st == "s" :
         st = "stryk"
     else:
         st = "topp"
-    tips = np.loadtxt(f"{st}{n}.txt", delimiter=',')
-    tipsOdds = np.loadtxt(f"{st}{n}odds.txt", dtype=float, delimiter=',')
-    tipsProcent = oddsTillProcent(tipsOdds)
-    värdeBets = beräknaVärde(tipsProcent, tips)
+    tips = np.loadtxt(f"{st}{n}.txt", delimiter=',')#Collects people percentage
+    tipsOdds = np.loadtxt(f"{st}{n}odds.txt", dtype=float, delimiter=',')#Collects odds
+    tipsProcent = oddsTillProcent(tipsOdds)#Converts odds to percentage, used as a probability for the games
+    värdeBets = beräknaVärde(tipsProcent, tips)#List of value for each bet
     play(tipsOdds, tipsProcent, tips, värdeBets)
 
 def oddsTillProcent(odds):
@@ -23,12 +23,12 @@ def oddsTillProcent(odds):
             oddsProcent[i, x] = oddsProcent[i, x]/konvertera
     return oddsProcent
 
-def beräknaVärde(odds, folket):
-    värdeBets = np.empty((odds.shape[0], odds.shape[1]))
-    for i in range(0,odds.shape[0]):
+def beräknaVärde(odds, folket):#Takes the probability and the people percentage as arguments
+    värdeBets = np.empty((odds.shape[0], odds.shape[1]))#Creates an empty array, same size as the arguments
+    for i in range(0,odds.shape[0]):#Nested for loop, range is the size of the arrays
         for x in range(0,odds.shape[1]):
-            värdeBets[i, x] = odds[i, x]/folket[i, x]
-    return värdeBets
+            värdeBets[i, x] = odds[i, x]/folket[i, x]#Compares the lists index by index 
+    return värdeBets#Returns the value of each bet as a new array
     
 
 def skrivUt(odds, oddsProcent, folkProcent, värdeBets):
@@ -69,17 +69,17 @@ def skrivResultat(resultat, kupong, tips):
         print(f"Du hade {rätt} rätt!") 
         print(f"Medelvärdet var {medelRätt} rätt för den här kupongen!")       
     
-def slumpa(tipsProcent, tips):
-    resultat = []
-    for i in range(0, tips.shape[0]):
-        svar = random.randint(1, 101)
-        if svar <= tipsProcent[i, 0]:
-            resultat.append("1")
-        elif svar <= tipsProcent[i, 0] + tipsProcent[i, 1]:
-            resultat.append("X")
-        else:
-            resultat.append("2")
-    return resultat
+def slumpa(tipsProcent):#Takes the probability for the outcome of each game
+    resultat = []#Creates a new list
+    for i in range(0, tipsProcent.shape[0]):#Range is the amount of games
+        svar = random.randint(1, 101)#Generates a random number from 1 to 100
+        if svar <= tipsProcent[i, 0]:#If the number is less than the probability of a home win
+            resultat.append("1")#1 means home win
+        elif svar <= tipsProcent[i, 0] + tipsProcent[i, 1]:#If the number is less than the probability of home win + draw
+            resultat.append("X")#X means draw
+        else:#Else its an away win
+            resultat.append("2")#2 means away win
+    return resultat#returns a list with the result
 
 def jämförKupong(kupong, resultat):
     rätt = 0
@@ -127,7 +127,7 @@ def play(tipsOdds, tipsProcent, tips, värdeBets):
                 else:
                     kupong.append(svar)
                     break
-        resultat = slumpa(tipsProcent, tips)
+        resultat = slumpa(tipsProcent)
         skrivResultat(resultat, kupong, tips)
         print("Vill du spela igen? (j/n)")
         svar = str(input())
